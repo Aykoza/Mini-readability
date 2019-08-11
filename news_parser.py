@@ -14,12 +14,16 @@ HEADER = {'User-Agent': str(UserAgent().chrome)}
 
 
 class LinkCleaner:
+    """
+    Чистильщик ссылок. Принимает элемент(bs4), возвращает тоже елемент(bs4)
+    """
     def __init__(self, element):
         self.element = element
 
+    # Базовая очистка. Проходимся по всему контенту элемента если есть тег <a>, вырезаем его оставляя href
     def link_clean(self, position=LINK_PARSER):
         if self.element.a:
-            links = self.element.findAll('a')
+            links = self.element.find_all('a')
             for link in links:
                 try:
                     index = self.element.index(link)
@@ -33,10 +37,15 @@ class LinkCleaner:
 
 
 class TextTransform:
+    """
+    Обработчик текста
+    Принимает текст, возвращает текст
+    """
     def __init__(self, text, tag_name=None):
         self.text = text
         self.tag_name = tag_name
 
+    # Базовое форматирование.
     def base_transform(self, ident=IDENT):
         if ident:
             self.ident_line()
@@ -56,9 +65,13 @@ class TextTransform:
         if self.tag_name not in ('h1', 'h2', 'h3'):
             self.text = '\t' + self.text
 
-class ContentParser:
 
-    regex_link = re.compile('(/[\S]*/)([a-z\d]*)')
+class ContentParser:
+    """
+    Основной класс, получает, преобразует, сохраняет.
+    Вызывается при запуске программы с основным методом parse_content
+    """
+    regex_link = re.compile('(/[\S]*/)([a-z\d_]*)')
 
     def __init__(self, url, regex_link=regex_link):
         self.url = url
@@ -84,7 +97,7 @@ class ContentParser:
     def save_content(self, content):
         path = '{}{}'.format(CUR_DIR, self.path)
         file = '{}{}'.format(self.file_name, '.txt')
-        if not os.path.exists(path + file):
+        if not os.path.exists(path):
             os.makedirs(path)
         with open(path + file, 'w+', encoding='utf-8') as out:
             for line in content:

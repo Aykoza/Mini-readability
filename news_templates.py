@@ -1,8 +1,12 @@
-# from bs4 import BeautifulSoup
 import re
 
 
 class NewsTemplates:
+    """
+    Шаблоны обработки страниц. Для каждого ресурса своя функция с условием.
+    Домен берется из URL.
+    Если нет шаблона для ресурса, вызывается базовый base_news()
+    """
     def __init__(self, domain, soup):
         self.domain = domain
         self.soup = soup
@@ -28,8 +32,11 @@ class NewsTemplates:
         return content
 
     def gazeta_news(self):
-        content = self.soup.find(['article'], {'class': re.compile('article-text')})
-        content = content.find_all(['p', 'h1', 'h2', 'h3'])
+        try:
+            content = self.soup.find(['article'], {'class': re.compile('article-text')})
+            content = content.find_all(['p', 'h1', 'h2', 'h3'])
+        except AttributeError:
+            content = self.base_news()
         return content
 
     def lenta_news(self):
